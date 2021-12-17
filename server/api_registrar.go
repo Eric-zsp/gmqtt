@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"io/ioutil"
+	"log"
 	"net"
 	"net/http"
 	"strings"
@@ -48,12 +49,15 @@ func (a *apiRegistrar) RegisterHTTPHandler(fn HTTPHandler) error {
 	for _, v := range a.httpServers {
 		schema, addr := splitEndpoint(v.gRPCEndpoint)
 		if schema == "unix" {
+			log.Println("RegisterHTTPHandler unix " + v.gRPCEndpoint)
 			err = fn(context.Background(), v.mux, v.gRPCEndpoint, []grpc.DialOption{grpc.WithInsecure()})
 			if err != nil {
 				return err
 			}
 			continue
 		}
+
+		log.Println("RegisterHTTPHandler windows " + addr)
 		err = fn(context.Background(), v.mux, addr, []grpc.DialOption{grpc.WithInsecure()})
 		if err != nil {
 			return err
